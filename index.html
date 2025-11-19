@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Serviços - Porto Príncipe</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f7f7f7;
+        margin: 30px;
+        color: #333;
+    }
+    h2 {
+        background: #004aad;
+        color: white;
+        padding: 10px;
+        border-radius: 6px;
+        font-size: 18px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 15px;
+        background: white;
+    }
+    th, td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: center;
+    }
+    th {
+        background: #004aad;
+        color: white;
+    }
+    input[type="number"] {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 5px;
+        text-align: right;
+    }
+    .resultado {
+        background: #eaf3ff;
+        font-weight: bold;
+    }
+    .container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 6px rgba(0,0,0,0.1);
+    }
+    .field {
+        margin-bottom: 10px;
+    }
+    .btn{
+        padding:10px 15px;
+        border:none;
+        border-radius:6px;
+        cursor:pointer;
+        margin-top:10px;
+        font-size:14px;
+    }
+    .btn-pdf{ background:#008000; color:white;}
+    .btn-reset{ background:#d00000; color:white;}
+    .btn-copy{ background:#004aad; color:white; margin-top:5px;}
+    textarea {
+        width: 100%;
+        height: 240px;
+        padding: 10px;
+        border: 1px solid #999;
+        resize: none;
+        background: #f0f0f0;
+        font-family: monospace;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+
+    <h2>Parte 1 - Cálculo de Serviço - Tabela Gerenciadoras</h2>
+    <label for="servico">Selecione o tipo de serviço:</label>
+    <select id="servico" onchange="atualizarValores()">
+        <option value="">-- Selecione --</option>
+        <option value="leve">Guincho Leve</option>
+        <option value="utilitario">Guincho Utilitário</option>
+        <option value="pesado">Guincho Pesado</option>
+        <option value="extra">Guincho Extra Pesado</option>
+        <option value="sos">S.O.S</option>
+        <option value="moto">Guincho Moto</option>
+        <option value="taxi">Táxi/Retorno/MTA</option>
+        <option value="chaveiro">Chaveiro</option>
+    </select>
+
+    <div class="field">
+        <label>Percentual de desconto de mão de obra (%):</label>
+        <input type="number" id="desconto" step="0.01" value="0" oninput="calcularTotal()">
+    </div>
+
+    <table id="tabelaServicos">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Valor Base (R$)</th>
+                <th>Valor Corrigido (R$)</th>
+                <th>Quantidade</th>
+                <th>Total (R$)</th>
+            </tr>
+        </thead>
+        <tbody id="itensTabela"></tbody>
+        <tfoot>
+            <tr class="resultado">
+                <td colspan="4">Total Geral (R$)</td>
+                <td id="totalGeral">0,00</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <h2>Itens adicionais</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Valor (R$)</th>
+                <th>Qtd</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody id="extrasTabela">
+            <tr>
+                <td>Patins</td>
+                <td>534,17</td>
+                <td><input type="number" min="0" value="0" oninput="calcularTotal()"></td>
+                <td class="totalExtra">0,00</td>
+            </tr>
+            <tr>
+                <td>Diária de Base</td>
+                <td>104,93</td>
+                <td><input type="number" min="0" value="0" oninput="calcularTotal()"></td>
+                <td class="totalExtra">0,00</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Pedágio</h2>
+    <div class="field">
+        <label>Valor total de pedágio (R$):</label>
+        <input type="number" id="pedagio" step="0.01" value="0" oninput="calcularTotal()">
+    </div>
+
+    <h2>Parte 2 - Valor Diferenciado - Preencher caso o cartão tenha um valor de tabela especificado pela Gerenciadora</h2>
+
+    <div class="field">
+        <label>Insira o valor total da ordem de serviço (R$):</label>
+        <input type="number" id="valorDiferenciado" step="0.01" value="0" oninput="calcularValorFinal()">
+    </div>
+
+    <h2>Parte 3 - Cálculo Final</h2>
+    <div class="field">
+        <label>Valor Final (R$):</label>
+        <input type="text" id="valorFinalCorrigido" readonly>
+    </div>
+
+    <h2>Máscara</h2>
+    <textarea id="mascara" readonly></textarea>
+    <button class="btn btn-copy" onclick="copiarMascara()">Copiar Máscara</button>
+
+    <button class="btn btn-pdf" onclick="gerarPDF()">Gerar PDF</button>
+    <button class="btn btn-reset" onclick="resetarFormulario()">Resetar</button>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+const servicos = {
+    leve: {saida:418.50, asfalto:5.80, terra:7.25, horaTrabalhada:124.00, horaParada:124.00},
+    utilitario: {saida:545.00, asfalto:6.20, terra:8.58, horaTrabalhada:124.00, horaParada:124.00},
+    pesado: {saida:1099.18, asfalto:10.21, terra:12.50, horaTrabalhada:278.52, horaParada:278.52},
+    extra: {saida:1230.20, asfalto:11.96, terra:13.15, horaTrabalhada:362.47, horaParada:362.47},
+    sos: {saida:418.50, asfalto:4.80, terra:7.25, horaTrabalhada:152.62, horaParada:152.62},
+    moto: {saida:418.50, asfalto:5.80, terra:7.25, horaTrabalhada:152.62, horaParada:152.62},
+    taxi: {saida:418.50, asfalto:5.80, terra:7.91, horaTrabalhada:152.62, horaParada:152.62},
+    chaveiro: {saida:418.50, asfalto:5.60, terra:7.91, horaTrabalhada:41.97, horaParada:41.97}
+};
+
+function atualizarValores() {
+    const servico = document.getElementById("servico").value;
+    const tabela = document.getElementById("itensTabela");
+    tabela.innerHTML = "";
+
+    if (!servico) return;
+
+    const dados = servicos[servico];
+    for (let chave in dados) {
+        const valor = dados[chave];
+        const linha = document.createElement("tr");
+        linha.innerHTML = `
+            <td>${chave.replace(/([A-Z])/g, " $1").toUpperCase()}</td>
+            <td>${valor.toFixed(2).replace('.', ',')}</td>
+            <td class="valorCorrigido">0,00</td>
+            <td><input type="number" min="0" step="1" value="0" oninput="calcularTotal()"></td>
+            <td class="totalItem">0,00</td>
+        `;
+        tabela.appendChild(linha);
+    }
+    calcularTotal();
+}
+
+function calcularTotal() {
+    const desconto = parseFloat(document.getElementById("desconto").value) / 100 || 0;
+    const linhas = document.querySelectorAll("#itensTabela tr");
+    let totalGeral = 0;
+
+    linhas.forEach(linha => {
+        const valorBase = parseFloat(linha.cells[1].textContent.replace(',', '.'));
+        const quantidade = parseFloat(linha.cells[3].querySelector("input").value) || 0;
+        const valorCorrigido = desconto > 0 ? valorBase / (1 - desconto) : valorBase;
+        const totalItem = valorCorrigido * quantidade;
+
+        linha.cells[2].textContent = valorCorrigido.toFixed(2).replace('.', ',');
+        linha.cells[4].textContent = totalItem.toFixed(2).replace('.', ',');
+        totalGeral += totalItem;
+    });
+
+    document.querySelectorAll("#extrasTabela tr").forEach(linha => {
+        const valor = parseFloat(linha.cells[1].textContent.replace(',', '.'));
+        const qtd = parseFloat(linha.cells[2].querySelector("input").value) || 0;
+        const total = valor * qtd;
+        linha.cells[3].textContent = total.toFixed(2).replace('.', ',');
+        totalGeral += total;
+    });
+
+    const pedagio = parseFloat(document.getElementById("pedagio").value) || 0;
+    totalGeral += pedagio;
+
+    document.getElementById("totalGeral").textContent = totalGeral.toFixed(2).replace('.', ',');
+
+    calcularValorFinal();
+}
+
+function calcularValorFinal() {
+    const totalGeral = parseFloat(document.getElementById("totalGeral").textContent.replace(',', '.')) || 0;
+    const valorDiferenciado = parseFloat(document.getElementById("valorDiferenciado").value) || 0;
+
+    const valorFinal = totalGeral - valorDiferenciado;
+
+    document.getElementById("valorFinalCorrigido").value =
+        valorFinal.toFixed(2).replace('.', ',');
+
+    gerarMascara();
+}
+
+function gerarMascara() {
+    const servicoSelecionado = document.getElementById("servico").options[document.getElementById("servico").selectedIndex].text;
+    const dataAtual = new Date().toLocaleDateString("pt-BR");
+
+    let texto = `||||||||||Serviço - ${servicoSelecionado.toUpperCase()}||||||||||\n`;
+    texto += `||||||||||Valores||||||||||\n`;
+
+    document.querySelectorAll("#itensTabela tr").forEach(linha => {
+        const item = linha.cells[0].textContent;
+        const valor = linha.cells[2].textContent;
+        const qtd = linha.cells[3].querySelector("input").value;
+        const total = linha.cells[4].textContent;
+
+        if (parseFloat(total.replace(',', '.')) > 0) {
+            texto += `||||||||||${item} | Quantidade - ${qtd} | Valor por unidade - R$ ${valor} | Valor Total - R$ ${total}||||||||||\n`;
+        }
+    });
+
+    document.querySelectorAll("#extrasTabela tr").forEach(linha => {
+        const item = linha.cells[0].textContent;
+        const valor = linha.cells[1].textContent;
+        const qtd = linha.cells[2].querySelector("input").value;
+        const total = linha.cells[3].textContent;
+
+        if (parseFloat(total.replace(',', '.')) > 0) {
+            texto += `||||||||||${item} | Quantidade - ${qtd} | Valor por unidade - R$ ${valor} | Valor Total - R$ ${total}||||||||||\n`;
+        }
+    });
+
+    const pedagio = parseFloat(document.getElementById("pedagio").value);
+    if (pedagio > 0) {
+        texto += `||||||||||Pedágio | Quantidade - 1 | Valor Total - R$ ${pedagio.toFixed(2).replace('.', ',')}||||||||||\n`;
+    }
+
+    const totalGeral = document.getElementById("totalGeral").textContent;
+    texto += `||||||||||VALOR TOTAL DO SERVIÇO = R$ ${totalGeral}||||||||||\n`;
+
+    const valorDiferenciado = parseFloat(document.getElementById("valorDiferenciado").value);
+    if (valorDiferenciado > 0) {
+        const diferenca = parseFloat(totalGeral.replace(',', '.')) - valorDiferenciado;
+        texto += `||||||||||VALOR A RECEBER DA PRIME DE R$ ${diferenca.toFixed(2).replace('.', ',')}||||||||||\n`;
+    }
+
+    texto += `Resumo do serviço : Contratado prestador na data ${dataAtual} conforme valores acima.`;
+
+    document.getElementById("mascara").value = texto;
+}
+
+function copiarMascara() {
+    const campo = document.getElementById("mascara");
+    campo.select();
+    document.execCommand("copy");
+}
+
+function gerarPDF(){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(11);
+    doc.text(document.getElementById("mascara").value, 10, 10);
+    doc.save("calculadora_porto_principe.pdf");
+}
+
+function resetarFormulario() {
+    location.reload();
+}
+</script>
+
+</body>
+</html>
