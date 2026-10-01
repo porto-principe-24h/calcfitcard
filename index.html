@@ -2,321 +2,1234 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calculadora de Serviços - Porto Príncipe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculadora de OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f7f7f7;
-        margin: 30px;
-        color: #333;
-    }
-    h2 {
-        background: #004aad;
-        color: white;
-        padding: 10px;
-        border-radius: 6px;
-        font-size: 18px;
-    }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 15px;
-        background: white;
-    }
-    th, td {
-        border: 1px solid #ccc;
-        padding: 8px;
-        text-align: center;
-    }
-    th {
-        background: #004aad;
-        color: white;
-    }
-    input[type="number"] {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 5px;
-        text-align: right;
-    }
-    .resultado {
-        background: #eaf3ff;
-        font-weight: bold;
-    }
-    .container {
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 0 6px rgba(0,0,0,0.1);
-    }
-    .field {
-        margin-bottom: 10px;
-    }
-    .btn{
-        padding:10px 15px;
-        border:none;
-        border-radius:6px;
-        cursor:pointer;
-        margin-top:10px;
-        font-size:14px;
-    }
-    .btn-pdf{ background:#008000; color:white;}
-    .btn-reset{ background:#d00000; color:white;}
-    .btn-copy{ background:#004aad; color:white; margin-top:5px;}
-    textarea {
-        width: 100%;
-        height: 240px;
-        padding: 10px;
-        border: 1px solid #999;
-        resize: none;
-        background: #f0f0f0;
-        font-family: monospace;
-    }
+:root {
+  --bg:       #f4f4f5;
+  --surface:  #ffffff;
+  --s2:       #fafafa;
+  --border:   #e4e4e7;
+  --border2:  #d1d1d6;
+  --text:     #09090b;
+  --body:     #3f3f46;
+  --muted:    #71717a;
+  --accent:   #18181b;
+  --accent2:  #27272a;
+  --red:      #dc2626;
+  --red2:     #fef2f2;
+  --green:    #16a34a;
+  --green2:   #f0fdf4;
+  --amber:    #d97706;
+  --amber2:   #fffbeb;
+  --amber3:   #fde68a;
+  box-sizing: border-box;
+}
+*,*::before,*::after{box-sizing:inherit;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:13.5px;line-height:1.5;
+  background:var(--bg);color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:60px;
+}
+
+/* HEADER */
+header{
+  background:var(--accent);color:#fff;
+  height:52px;padding:0 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+  border-bottom:1px solid #000;
+}
+.h-left{display:flex;align-items:center;gap:10px;}
+.h-logo{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;font-weight:600;letter-spacing:1px;
+  background:#fff;color:#000;
+  padding:3px 8px;border-radius:4px;
+}
+.h-title{font-size:14px;font-weight:600;letter-spacing:-.2px;}
+.h-actions{display:flex;gap:8px;}
+
+/* TABS */
+.tabs{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:0 28px;
+  display:flex;gap:0;
+  position:sticky;top:52px;z-index:90;
+}
+.tab-btn{
+  background:none;border:none;border-bottom:2px solid transparent;
+  font-family:inherit;font-size:13px;font-weight:500;
+  color:var(--muted);padding:12px 16px;cursor:pointer;
+  margin-bottom:-1px;transition:color .12s,border-color .12s;
+  white-space:nowrap;display:flex;align-items:center;gap:6px;
+}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--text);border-bottom-color:var(--text);font-weight:600;}
+
+/* PANELS */
+.panel{display:none;padding:24px 28px;max-width:1080px;}
+.panel.active{display:block;}
+
+/* SECTION */
+.section{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:8px;
+  margin-bottom:16px;
+  overflow:hidden;
+}
+.section-head{
+  background:var(--accent);color:#fff;
+  padding:9px 16px;
+  font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.section-head-icon{margin-right:6px;font-size:13px;}
+.section-body{padding:16px;}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
+
+/* FIELDS */
+.field{display:flex;flex-direction:column;gap:4px;}
+.field label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.3px;text-transform:uppercase;}
+.field label .req{color:var(--red);margin-left:2px;}
+
+input[type=text],input[type=number],input[type=password],select,textarea{
+  font-family:inherit;font-size:13px;
+  padding:8px 10px;
+  border:1px solid var(--border2);border-radius:6px;
+  background:var(--s2);color:var(--text);
+  outline:none;width:100%;
+  transition:border-color .12s,box-shadow .12s;
+}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(0,0,0,.07);
+}
+input.invalid{border-color:var(--red);background:var(--red2);}
+input[readonly]{
+  background:#f4f4f5;color:var(--body);
+  cursor:default;font-weight:500;
+}
+.r-mono{
+  font-family:'JetBrains Mono',monospace;
+  font-size:15px;font-weight:600;
+  background:var(--accent);color:#fff;
+  border-color:var(--accent);text-align:right;
+}
+.r-sub{
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;font-weight:500;
+  background:var(--s2);color:var(--body);
+  text-align:right;
+}
+.r-green{
+  font-family:'JetBrains Mono',monospace;
+  font-size:14px;font-weight:600;
+  background:var(--green2);color:var(--green);
+  border-color:#bbf7d0;text-align:right;
+}
+
+/* BUTTONS */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:inherit;font-size:13px;font-weight:600;
+  padding:8px 16px;border-radius:6px;border:none;
+  cursor:pointer;transition:all .12s;white-space:nowrap;
+}
+.btn-dark{background:var(--accent);color:#fff;}
+.btn-dark:hover{background:var(--accent2);}
+.btn-outline{background:var(--surface);color:var(--text);border:1px solid var(--border2);}
+.btn-outline:hover{background:var(--bg);border-color:var(--accent);}
+.btn-green{background:var(--green);color:#fff;}
+.btn-green:hover{background:#15803d;}
+.btn-red{background:var(--red);color:#fff;}
+.btn-red:hover{background:#b91c1c;}
+.btn-sm{padding:5px 12px;font-size:12px;}
+
+/* TABLE */
+.dt{width:100%;border-collapse:collapse;font-size:13px;}
+.dt th{
+  background:var(--accent2);color:#fff;
+  padding:8px 12px;text-align:left;
+  font-size:11px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;
+}
+.dt th:not(:first-child){text-align:right;}
+.dt td{
+  padding:8px 12px;border-bottom:1px solid var(--border);
+  color:var(--body);vertical-align:middle;
+}
+.dt td:not(:first-child){text-align:right;}
+.dt tr:last-child td{border-bottom:none;}
+.dt tr:hover td{background:var(--s2);}
+.dt .tfoot td{
+  background:var(--accent);color:#fff;
+  font-weight:700;font-family:'JetBrains Mono',monospace;
+  font-size:14px;border-bottom:none;
+}
+.dt input{
+  width:80px;text-align:right;
+  padding:5px 7px;font-size:13px;
+  background:var(--s2);
+}
+.mono{font-family:'JetBrains Mono',monospace;}
+
+/* VMC BLOCK */
+.vmc-wrap{
+  border:1px solid var(--border);border-radius:8px;
+  overflow:hidden;margin-bottom:16px;
+}
+.vmc-head{
+  background:var(--accent2);color:#fff;
+  padding:9px 16px;
+  font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.vmc-body{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  background:var(--accent);
+}
+.vmc-cell{
+  padding:16px;
+  border-right:1px solid rgba(255,255,255,.12);
+}
+.vmc-cell:last-child{border-right:none;}
+.vmc-label{font-size:10px;font-weight:600;color:rgba(255,255,255,.55);letter-spacing:.3px;margin-bottom:4px;}
+.vmc-val{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:#fff;}
+.vmc-val.highlight{color:#fde68a;}
+.vmc-note{
+  background:#111;color:rgba(255,255,255,.5);
+  padding:8px 16px;font-size:11px;
+}
+
+/* MASK */
+.mask-box{
+  background:#09090b;border:1px solid #27272a;border-radius:8px;
+  padding:16px;
+  font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.9;
+  color:#e4e4e7;white-space:pre-wrap;word-break:break-word;min-height:140px;
+}
+
+/* MODAL */
+.overlay{
+  display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,.6);backdrop-filter:blur(3px);
+  align-items:center;justify-content:center;
+}
+.overlay.open{display:flex;}
+.modal{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:10px;padding:28px;width:100%;max-width:420px;
+  box-shadow:0 24px 64px rgba(0,0,0,.3);
+}
+.modal h3{font-size:15px;font-weight:700;margin-bottom:4px;}
+.modal p{font-size:13px;color:var(--muted);margin-bottom:18px;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;}
+.modal-err{color:var(--red);font-size:12px;margin-top:6px;display:none;}
+
+/* ADMIN TABLE */
+.at{width:100%;border-collapse:collapse;font-size:13px;}
+.at th{
+  background:var(--s2);border-bottom:2px solid var(--border2);
+  padding:8px 12px;text-align:left;
+  font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.3px;text-transform:uppercase;
+}
+.at td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.at tr:hover td{background:var(--s2);}
+.at input{width:110px;text-align:right;font-family:'JetBrains Mono',monospace;padding:5px 8px;font-size:13px;}
+.svc-name{font-weight:600;font-size:13px;}
+
+/* DIVIDER */
+hr.div{border:none;border-top:1px solid var(--border);margin:14px 0;}
+
+/* INFO BOX */
+.infobox{
+  padding:10px 14px;border-radius:6px;font-size:12px;
+  display:flex;align-items:flex-start;gap:8px;margin-bottom:14px;
+}
+.infobox.amber{background:var(--amber2);border:1px solid var(--amber3);color:var(--amber);}
+.infobox.neutral{background:var(--s2);border:1px solid var(--border);color:var(--muted);}
+
+/* TOAST */
+#toast{
+  position:fixed;bottom:24px;right:24px;z-index:999;
+  padding:10px 18px;border-radius:7px;
+  font-size:13px;font-weight:600;
+  box-shadow:0 4px 20px rgba(0,0,0,.25);
+  transform:translateY(80px);opacity:0;
+  transition:all .22s;
+}
+#toast.show{transform:translateY(0);opacity:1;}
+
+/* BADGE */
+.badge{
+  display:inline-block;font-size:10px;font-weight:600;
+  padding:2px 7px;border-radius:4px;letter-spacing:.3px;
+}
+.badge-dark{background:#e4e4e7;color:var(--accent);}
+
+/* RESPONSIVE */
+@media(max-width:720px){
+  header{padding:0 16px;}
+  .tabs{padding:0 16px;overflow-x:auto;}
+  .panel{padding:14px 16px;}
+  .g2,.g3,.g4,.g5{grid-template-columns:1fr;}
+  .vmc-body{grid-template-columns:1fr 1fr;}
+  .vmc-cell{border-right:none;border-bottom:1px solid rgba(255,255,255,.1);}
+}
 </style>
 </head>
 <body>
-<div class="container">
 
-    <h2>Parte 1 - Cálculo de Serviço - Tabela Gerenciadoras</h2>
-    <label for="servico">Selecione o tipo de serviço:</label>
-    <select id="servico" onchange="atualizarValores()">
-        <option value="">-- Selecione --</option>
-        <option value="leve">Guincho Leve</option>
-        <option value="utilitario">Guincho Utilitário</option>
-        <option value="pesado">Guincho Pesado</option>
-        <option value="extra">Guincho Extra Pesado</option>
-        <option value="sos">S.O.S</option>
-        <option value="moto">Guincho Moto</option>
-        <option value="taxi">Táxi/Retorno/MTA</option>
-        <option value="chaveiro">Chaveiro</option>
-    </select>
+<div id="toast"></div>
 
+<!-- MODAL ADMIN -->
+<div class="overlay" id="modalAdm">
+  <div class="modal">
+    <h3>🔒 Área restrita</h3>
+    <p>Acesso exclusivo para administradores. Insira a senha para continuar.</p>
     <div class="field">
-        <label>Percentual de desconto de mão de obra (%):</label>
-        <input type="number" id="desconto" step="0.01" value="0" oninput="calcularTotal()">
+      <label>Senha</label>
+      <input type="password" id="inSenha" placeholder="••••••••"
+        onkeydown="if(event.key==='Enter')confSenha()">
     </div>
-
-    <table id="tabelaServicos">
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th>Valor Base (R$)</th>
-                <th>Valor Corrigido (R$)</th>
-                <th>Quantidade</th>
-                <th>Total (R$)</th>
-            </tr>
-        </thead>
-        <tbody id="itensTabela"></tbody>
-        <tfoot>
-            <tr class="resultado">
-                <td colspan="4">Total Geral (R$)</td>
-                <td id="totalGeral">0,00</td>
-            </tr>
-        </tfoot>
-    </table>
-
-    <h2>Itens adicionais</h2>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th>Valor (R$)</th>
-                <th>Qtd</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody id="extrasTabela">
-            <tr>
-                <td>Patins</td>
-                <td>534,17</td>
-                <td><input type="number" min="0" value="0" oninput="calcularTotal()"></td>
-                <td class="totalExtra">0,00</td>
-            </tr>
-            <tr>
-                <td>Diária de Base</td>
-                <td>104,93</td>
-                <td><input type="number" min="0" value="0" oninput="calcularTotal()"></td>
-                <td class="totalExtra">0,00</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <h2>Pedágio</h2>
-    <div class="field">
-        <label>Valor total de pedágio (R$):</label>
-        <input type="number" id="pedagio" step="0.01" value="0" oninput="calcularTotal()">
+    <div class="modal-err" id="senhaErr">Senha incorreta. Tente novamente.</div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="fechaModal('modalAdm')">Cancelar</button>
+      <button class="btn btn-dark" onclick="confSenha()">Entrar</button>
     </div>
-
-    <h2>Parte 2 - Valor Diferenciado - Preencher caso o cartão tenha um valor de tabela especificado pela Gerenciadora</h2>
-
-    <div class="field">
-        <label>Insira o valor total da ordem de serviço (R$):</label>
-        <input type="number" id="valorDiferenciado" step="0.01" value="0" oninput="calcularValorFinal()">
-    </div>
-
-    <h2>Parte 3 - Cálculo Final</h2>
-    <div class="field">
-        <label>Valor Final (R$):</label>
-        <input type="text" id="valorFinalCorrigido" readonly>
-    </div>
-
-    <h2>Máscara</h2>
-    <textarea id="mascara" readonly></textarea>
-    <button class="btn btn-copy" onclick="copiarMascara()">Copiar Máscara</button>
-
-    <button class="btn btn-pdf" onclick="gerarPDF()">Gerar PDF</button>
-    <button class="btn btn-reset" onclick="resetarFormulario()">Resetar</button>
-
+  </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- MODAL VMC -->
+<div class="overlay" id="modalVMC">
+  <div class="modal">
+    <h3>🔒 Alterar parâmetros do VMC</h3>
+    <p>Informe a senha de administrador para editar os percentuais.</p>
+    <div class="field">
+      <label>Senha</label>
+      <input type="password" id="inSenhaVMC" placeholder="••••••••"
+        onkeydown="if(event.key==='Enter')confSenhaVMC()">
+    </div>
+    <div class="modal-err" id="senhaVMCErr">Senha incorreta.</div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="fechaModal('modalVMC')">Cancelar</button>
+      <button class="btn btn-dark" onclick="confSenhaVMC()">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="h-left">
+    <span class="h-logo">OS</span>
+    <span class="h-title">Calculadora de Ordem de Serviço</span>
+  </div>
+  <div class="h-actions">
+    <button class="btn btn-outline btn-sm" onclick="resetarTudo()">↺ Resetar</button>
+    <button class="btn btn-outline btn-sm" onclick="exportarPDF()">↓ PDF</button>
+    <a href="/logout" class="btn btn-outline btn-sm" style="text-decoration:none">⎋ Sair</a>
+  </div>
+</header>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" data-tab="os" onclick="mudarTab(this,'os')">
+    📋 Ordem de Serviço
+  </button>
+  <button class="tab-btn" data-tab="dif" onclick="mudarTab(this,'dif')">
+    🔀 Valor Diferenciado
+  </button>
+  <button class="tab-btn" data-tab="mask" id="tabMask" onclick="tentarMascara(this)">
+    📄 Máscara
+  </button>
+  <button class="tab-btn" data-tab="adm" onclick="abrirAdm(this)">
+    ⚙️ Tabela / Config.
+  </button>
+</div>
+
+<!-- ══════ PANEL OS ══════ -->
+<div class="panel active" id="panel-os">
+
+  <!-- Identificação -->
+  <div class="section">
+    <div class="section-head">
+      <span><span class="section-head-icon">🗂️</span>Identificação da OS</span>
+    </div>
+    <div class="section-body">
+      <div class="g4">
+        <div class="field">
+          <label>N° da OS <span class="req">*</span></label>
+          <input type="text" id="os_num" placeholder="ex: 2024-00123"
+            oninput="validaCampo(this)">
+        </div>
+        <div class="field">
+          <label>Data do Serviço <span class="req">*</span></label>
+          <input type="text" id="os_data" placeholder="DD/MM/AAAA" maxlength="10"
+            oninput="validaCampo(this);fmtData(this)">
+        </div>
+        <div class="field">
+          <label>Gerenciadora <span class="req">*</span></label>
+          <select id="os_ger" onchange="validaSelect(this)">
+            <option value="">— Selecione —</option>
+            <option value="PRIME">PRIME</option>
+            <option value="LINK">LINK</option>
+            <option value="NEO">NEO</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Link da Roteirização <span class="req">*</span></label>
+          <input type="text" id="os_link" placeholder="https://maps.google.com/..."
+            oninput="validaCampo(this)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Serviço -->
+  <div class="section">
+    <div class="section-head">
+      <span><span class="section-head-icon">🚗</span>Tipo de Serviço</span>
+    </div>
+    <div class="section-body">
+      <div class="g2">
+        <div class="field">
+          <label>Serviço <span class="req">*</span></label>
+          <select id="servico" onchange="atualizaTabela()">
+            <option value="">— Selecione —</option>
+            <option value="leve">Guincho Leve</option>
+            <option value="utilitario">Guincho Utilitário</option>
+            <option value="pesado">Guincho Pesado</option>
+            <option value="extra">Guincho Extra Pesado</option>
+            <option value="sos">S.O.S</option>
+            <option value="moto">Guincho Moto</option>
+            <option value="taxi">Táxi / Retorno / MTA</option>
+            <option value="chaveiro">Chaveiro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>DMO — Desconto de Mão de Obra (%)</label>
+          <input type="number" id="desconto" step="0.01" min="0" max="99" value="0"
+            placeholder="ex: 10,00" oninput="calcTotal()">
+        </div>
+      </div>
+      <div class="infobox neutral" style="margin-top:12px;margin-bottom:0">
+        💡 O valor corrigido já considera o DMO — ao inserir no sistema e ele aplicar o desconto, o valor retorna à tabela contratual.
+      </div>
+    </div>
+  </div>
+
+  <!-- Itens do serviço -->
+  <div class="section" id="secTabela" style="display:none">
+    <div class="section-head"><span><span class="section-head-icon">📊</span>Itens do Serviço</span></div>
+    <div class="section-body" style="padding:0">
+      <div style="overflow-x:auto">
+        <table class="dt" id="tblServico">
+          <thead>
+            <tr>
+              <th style="width:25%">Item</th>
+              <th>Valor Tabela (R$)</th>
+              <th>Valor Corrigido (R$)</th>
+              <th>Quantidade</th>
+              <th>Total Corrigido (R$)</th>
+            </tr>
+          </thead>
+          <tbody id="itensBody"></tbody>
+          <tfoot>
+            <tr class="tfoot">
+              <td colspan="4" style="text-align:right;font-size:12px;font-weight:600;letter-spacing:.3px">TOTAL CORRIGIDO (INSERIR NO SISTEMA)</td>
+              <td id="totalCorrigido" style="text-align:right">0,00</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Itens adicionais -->
+  <div class="section" id="secExtras" style="display:none">
+    <div class="section-head"><span><span class="section-head-icon">➕</span>Itens Adicionais</span></div>
+    <div class="section-body" style="padding:0">
+      <table class="dt">
+        <thead>
+          <tr>
+            <th style="width:40%">Item</th>
+            <th>Valor (R$)</th>
+            <th>Quantidade</th>
+            <th>Total (R$)</th>
+          </tr>
+        </thead>
+        <tbody id="extrasBody">
+          <tr>
+            <td>Patins</td>
+            <td class="mono" id="val_patins">534,17</td>
+            <td><input type="number" min="0" value="0" oninput="calcTotal()"></td>
+            <td class="mono totalExtra">0,00</td>
+          </tr>
+          <tr>
+            <td>Diária de Base</td>
+            <td class="mono" id="val_diaria">104,93</td>
+            <td><input type="number" min="0" value="0" oninput="calcTotal()"></td>
+            <td class="mono totalExtra">0,00</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pedágio -->
+  <div class="section" id="secPedagio" style="display:none">
+    <div class="section-head"><span><span class="section-head-icon">🛣️</span>Pedágio</span></div>
+    <div class="section-body">
+      <div class="g3">
+        <div class="field">
+          <label>Valor total de pedágio (R$)</label>
+          <input type="number" id="pedagio" step="0.01" min="0" value="0" oninput="calcTotal()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VMC -->
+  <div id="vmcWrap" style="display:none">
+    <div class="vmc-wrap">
+      <div class="vmc-head">
+        <span>💰 VMC — Valor Máximo para Contratação</span>
+        <button class="btn btn-outline btn-sm" style="color:#fff;border-color:rgba(255,255,255,.3);background:transparent"
+          onclick="abrirModalVMC()">🔒 Alterar percentuais</button>
+      </div>
+      <div class="vmc-body">
+        <div class="vmc-cell">
+          <div class="vmc-label">Total Inserido no Sistema</div>
+          <div class="vmc-val mono" id="v_corrigido">R$ 0,00</div>
+        </div>
+        <div class="vmc-cell">
+          <div class="vmc-label">Valor Real (após DMO)</div>
+          <div class="vmc-val mono" id="v_real">R$ 0,00</div>
+        </div>
+        <div class="vmc-cell">
+          <div class="vmc-label">— Impostos (<span id="lbl_imp">26,65</span>%) — Margem (<span id="lbl_mar">35,00</span>%)</div>
+          <div class="vmc-val mono" id="v_deducoes">R$ 0,00</div>
+        </div>
+        <div class="vmc-cell">
+          <div class="vmc-label">VMC — Liberar até</div>
+          <div class="vmc-val mono highlight" id="v_vmc">R$ 0,00</div>
+        </div>
+      </div>
+      <div class="vmc-note">
+        Fórmula: Total corrigido ÷ (1 − DMO%) = Valor real → − impostos − margem = VMC
+      </div>
+    </div>
+  </div>
+
+</div><!-- /panel-os -->
+
+<!-- ══════ PANEL DIFERENCIADO ══════ -->
+<div class="panel" id="panel-dif">
+
+  <div class="infobox amber">
+    ⚠️ Use esta aba quando o cliente tiver tabela própria diferente da tabela contratual. O serviço e o DMO definidos na aba OS são aplicados automaticamente aqui.
+  </div>
+
+  <div class="section">
+    <div class="section-head"><span><span class="section-head-icon">📐</span>Tabela do Cliente (Órgão / Gerenciadora específica)</span></div>
+    <div class="section-body">
+      <div class="g5">
+        <div class="field">
+          <label>Saída (R$) <span class="req">*</span></label>
+          <input type="number" id="d_saida" step="0.01" min="0" placeholder="ex: 280,00" oninput="calcDif()">
+        </div>
+        <div class="field">
+          <label>Raio da saída (km) <span class="req">*</span></label>
+          <input type="number" id="d_raio" step="1" min="0" placeholder="ex: 40" oninput="calcDif()">
+        </div>
+        <div class="field">
+          <label>KM Total percorrido <span class="req">*</span></label>
+          <input type="number" id="d_km" step="1" min="0" placeholder="ex: 100" oninput="calcDif()">
+        </div>
+        <div class="field">
+          <label>KM excedente (R$/km)</label>
+          <input type="number" id="d_kmv" step="0.01" min="0" placeholder="ex: 4,46" oninput="calcDif()">
+        </div>
+        <div class="field">
+          <label>Desconto do item (%)</label>
+          <input type="number" id="d_desc" step="0.01" min="0" max="100" value="0" oninput="calcDif()">
+        </div>
+      </div>
+      <hr class="div">
+      <div class="g4">
+        <div class="field">
+          <label>HT — Hora Trabalhada (R$)</label>
+          <input type="number" id="d_htv" step="0.01" min="0" placeholder="ex: 124,00" oninput="calcDif()">
+        </div>
+        <div class="field">
+          <label>Qtd HT</label>
+          <input type="number" id="d_htq" step="0.5" min="0" value="0" oninput="calcDif()">
+        </div>
+        <div class="field">
+          <label>HP — Hora Parada (R$)</label>
+          <input type="number" id="d_hpv" step="0.01" min="0" placeholder="ex: 124,00" oninput="calcDif()">
+        </div>
+        <div class="field">
+          <label>Qtd HP</label>
+          <input type="number" id="d_hpq" step="0.5" min="0" value="0" oninput="calcDif()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resultado diferenciado -->
+  <div id="secDifRes" style="display:none">
+    <div class="section">
+      <div class="section-head"><span><span class="section-head-icon">📈</span>Resultado — Comparativo de Tabelas</span></div>
+      <div class="section-body" style="padding:0">
+        <div style="overflow-x:auto">
+          <table class="dt" style="margin-bottom:0">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Tabela do Cliente (R$)</th>
+                <th>Tabela Contratual (R$)</th>
+              </tr>
+            </thead>
+            <tbody id="difTbody"></tbody>
+            <tfoot>
+              <tr class="tfoot">
+                <td>TOTAL</td>
+                <td id="dif_tc">0,00</td>
+                <td id="dif_tp">0,00</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><span><span class="section-head-icon">💵</span>Valores a Receber</span></div>
+      <div class="section-body">
+        <div class="g3" style="margin-bottom:14px">
+          <div class="field">
+            <label>Valor bruto (tabela cliente)</label>
+            <input type="text" readonly class="r-sub" id="d_bruto">
+          </div>
+          <div class="field">
+            <label>Valor final OS (após desconto do item)</label>
+            <input type="text" readonly class="r-sub" id="d_final">
+          </div>
+          <div class="field">
+            <label>Valor tabela contratual (mesma rota)</label>
+            <input type="text" readonly class="r-sub" id="d_pp">
+          </div>
+        </div>
+        <div class="g2">
+          <div class="field">
+            <label>✅ A receber do Órgão / Cliente</label>
+            <input type="text" readonly class="r-green" id="d_orgao">
+          </div>
+          <div class="field">
+            <label>✅ A receber da Gerenciadora</label>
+            <input type="text" readonly class="r-green" id="d_ger">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VMC diferenciado -->
+    <div class="vmc-wrap">
+      <div class="vmc-head">
+        <span>💰 VMC — Com Valor Diferenciado</span>
+      </div>
+      <div class="vmc-body">
+        <div class="vmc-cell">
+          <div class="vmc-label">Total a receber (Órgão + Ger.)</div>
+          <div class="vmc-val mono" id="vd_total">R$ 0,00</div>
+        </div>
+        <div class="vmc-cell">
+          <div class="vmc-label">— Impostos (<span id="lbl_imp2">26,65</span>%)</div>
+          <div class="vmc-val mono" id="vd_imp">R$ 0,00</div>
+        </div>
+        <div class="vmc-cell">
+          <div class="vmc-label">— Margem (<span id="lbl_mar2">35,00</span>%)</div>
+          <div class="vmc-val mono" id="vd_mar">R$ 0,00</div>
+        </div>
+        <div class="vmc-cell">
+          <div class="vmc-label">VMC — Liberar até</div>
+          <div class="vmc-val mono highlight" id="vd_vmc">R$ 0,00</div>
+        </div>
+      </div>
+      <div class="vmc-note">VMC calculado sobre o total real recebido (órgão + gerenciadora).</div>
+    </div>
+  </div>
+
+</div><!-- /panel-dif -->
+
+<!-- ══════ PANEL MÁSCARA ══════ -->
+<div class="panel" id="panel-mask">
+  <div class="section">
+    <div class="section-head">
+      <span><span class="section-head-icon">📄</span>Máscara — Sistema da Gerenciadora</span>
+      <button class="btn btn-outline btn-sm" style="color:#fff;border-color:rgba(255,255,255,.35);background:transparent"
+        onclick="copiarMascara()">📋 Copiar</button>
+    </div>
+    <div class="section-body">
+      <div class="mask-box" id="mascaraBox">— Preencha a OS para gerar a máscara —</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ PANEL ADMIN ══════ -->
+<div class="panel" id="panel-adm">
+
+  <div class="section">
+    <div class="section-head">
+      <span><span class="section-head-icon">📋</span>Tabela de Valores por Serviço</span>
+      <button class="btn btn-green btn-sm" onclick="salvarTabela()">✓ Salvar tabela</button>
+    </div>
+    <div class="section-body" style="padding:0">
+      <div style="overflow-x:auto">
+        <table class="at" id="admTabela">
+          <thead>
+            <tr>
+              <th>Serviço</th>
+              <th>Saída (R$)</th>
+              <th>Asfalto (R$/km)</th>
+              <th>Terra (R$/km)</th>
+              <th>Hora Trab. (R$)</th>
+              <th>Hora Parada (R$)</th>
+            </tr>
+          </thead>
+          <tbody id="admTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head"><span><span class="section-head-icon">⚖️</span>Parâmetros do VMC</span></div>
+    <div class="section-body">
+      <div class="g3">
+        <div class="field">
+          <label>Imposto (%)</label>
+          <input type="number" id="adm_imp" step="0.01" min="0" max="100">
+        </div>
+        <div class="field">
+          <label>Margem (%)</label>
+          <input type="number" id="adm_mar" step="0.01" min="0" max="100">
+        </div>
+        <div style="display:flex;align-items:flex-end">
+          <button class="btn btn-dark" onclick="salvarVMC()">✓ Salvar VMC</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <span><span class="section-head-icon">➕</span>Itens Adicionais</span>
+      <button class="btn btn-green btn-sm" onclick="salvarExtras()">✓ Salvar</button>
+    </div>
+    <div class="section-body" style="padding:0">
+      <table class="at">
+        <thead><tr><th>Item</th><th>Valor (R$)</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="svc-name">Patins</td>
+            <td><input type="number" id="adm_patins" step="0.01"></td>
+          </tr>
+          <tr>
+            <td class="svc-name">Diária de Base</td>
+            <td><input type="number" id="adm_diaria" step="0.01"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /panel-adm -->
 
 <script>
-const servicos = {
-    leve: {saida:418.50, asfalto:5.80, terra:7.25, horaTrabalhada:124.00, horaParada:124.00},
-    utilitario: {saida:545.00, asfalto:6.20, terra:8.58, horaTrabalhada:124.00, horaParada:124.00},
-    pesado: {saida:1099.18, asfalto:10.21, terra:12.50, horaTrabalhada:278.52, horaParada:278.52},
-    extra: {saida:1230.20, asfalto:11.96, terra:13.15, horaTrabalhada:362.47, horaParada:362.47},
-    sos: {saida:418.50, asfalto:4.80, terra:7.25, horaTrabalhada:152.62, horaParada:152.62},
-    moto: {saida:418.50, asfalto:5.80, terra:7.25, horaTrabalhada:152.62, horaParada:152.62},
-    taxi: {saida:418.50, asfalto:5.80, terra:7.91, horaTrabalhada:152.62, horaParada:152.62},
-    chaveiro: {saida:418.50, asfalto:5.60, terra:7.91, horaTrabalhada:41.97, horaParada:41.97}
+/* ─── CONSTANTES ─── */
+// Senha ADM removida do frontend — validação feita pelo servidor via /api/verificar-adm
+
+/* ─── STATE ─── */
+const ST = {
+  tabela:{
+    leve:      {saida:418.50,asfalto:5.80, terra:7.25, ht:124.00, hp:124.00},
+    utilitario:{saida:545.00,asfalto:6.20, terra:8.58, ht:124.00, hp:124.00},
+    pesado:    {saida:1099.18,asfalto:10.21,terra:12.50,ht:278.52,hp:278.52},
+    extra:     {saida:1230.20,asfalto:11.96,terra:13.15,ht:362.47,hp:362.47},
+    sos:       {saida:418.50,asfalto:4.80, terra:7.25, ht:152.62, hp:152.62},
+    moto:      {saida:418.50,asfalto:5.80, terra:7.25, ht:152.62, hp:152.62},
+    taxi:      {saida:418.50,asfalto:5.80, terra:7.91, ht:152.62, hp:152.62},
+    chaveiro:  {saida:418.50,asfalto:5.60, terra:7.91, ht:41.97,  hp:41.97}
+  },
+  nomes:{
+    leve:'Guincho Leve',utilitario:'Guincho Utilitário',
+    pesado:'Guincho Pesado',extra:'Guincho Extra Pesado',
+    sos:'S.O.S',moto:'Guincho Moto',taxi:'Táxi / Retorno / MTA',chaveiro:'Chaveiro'
+  },
+  extras:{patins:534.17,diaria:104.93},
+  vmc:{imp:26.65,mar:35.00},
+  // totais calculados
+  totalCorrigido:0,  // valor que entra no sistema (com DMO)
+  totalReal:0,       // valor real da tabela contratual (sem DMO)
+  difFinalOS:0,      // valor final OS do cliente diferenciado
+  difTotalPP:0,      // valor tabela PP da mesma rota
 };
 
-function atualizarValores() {
-    const servico = document.getElementById("servico").value;
-    const tabela = document.getElementById("itensTabela");
-    tabela.innerHTML = "";
+const KEYS  = ['saida','asfalto','terra','ht','hp'];
+const KLBL  = {saida:'Saída',asfalto:'Asfalto',terra:'Terra',ht:'Hora Trabalhada',hp:'Hora Parada'};
+const NOMES_MASK = {saida:'SAIDA',asfalto:'ASFALTO',terra:'TERRA',ht:'HORA TRABALHADA',hp:'HORA PARADA'};
 
-    if (!servico) return;
+/* ─── UTILS ─── */
+const fmt  = v => v.toFixed(2).replace('.',',');
+const pN   = s => parseFloat(String(s).replace(',','.')) || 0;
+const $    = id => document.getElementById(id);
 
-    const dados = servicos[servico];
-    for (let chave in dados) {
-        const valor = dados[chave];
-        const linha = document.createElement("tr");
-        linha.innerHTML = `
-            <td>${chave.replace(/([A-Z])/g, " $1").toUpperCase()}</td>
-            <td>${valor.toFixed(2).replace('.', ',')}</td>
-            <td class="valorCorrigido">0,00</td>
-            <td><input type="number" min="0" step="1" value="0" oninput="calcularTotal()"></td>
-            <td class="totalItem">0,00</td>
-        `;
-        tabela.appendChild(linha);
+function toast(msg,ok=true){
+  const t=$('toast');
+  t.textContent=msg;
+  t.style.background=ok?'#16a34a':'#dc2626';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+function fmtData(el){
+  let v=el.value.replace(/\D/g,'');
+  if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2);
+  if(v.length>5)v=v.slice(0,5)+'/'+v.slice(5,9);
+  el.value=v;
+}
+
+function validaCampo(el){
+  el.classList.toggle('invalid',!el.value.trim());
+  return !!el.value.trim();
+}
+function validaSelect(el){
+  el.classList.toggle('invalid',!el.value);
+  return !!el.value;
+}
+
+/* ─── TABS ─── */
+function mudarTab(btn,id){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  $('panel-'+id).classList.add('active');
+}
+
+function tentarMascara(btn){
+  const campos=[
+    {el:$('os_num'),ok:validaCampo},
+    {el:$('os_data'),ok:validaCampo},
+    {el:$('os_ger'),ok:validaSelect},
+    {el:$('os_link'),ok:validaCampo},
+  ];
+  let ok=true;
+  campos.forEach(c=>{if(!c.ok(c.el))ok=false;});
+  if(!ok){toast('Preencha todos os campos obrigatórios da OS.',false);return;}
+  mudarTab(btn,'mask');
+  gerarMascara();
+}
+
+/* ─── MODAIS ─── */
+let _admBtn=null;
+function abrirAdm(btn){
+  _admBtn=btn;
+  $('inSenha').value='';$('senhaErr').style.display='none';
+  $('modalAdm').classList.add('open');
+  setTimeout(()=>$('inSenha').focus(),120);
+}
+function fechaModal(id){$(id).classList.remove('open');}
+
+async function confSenha(){
+  const senha=$('inSenha').value;
+  try {
+    const res=await fetch('/api/verificar-adm',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({senha})
+    });
+    const data=await res.json();
+    if(data.ok){
+      fechaModal('modalAdm');
+      mudarTab(_admBtn,'adm');
+      carregarAdm();
+    } else {
+      $('senhaErr').style.display='block';
     }
-    calcularTotal();
+  } catch(e){
+    $('senhaErr').textContent='Erro de conexão com o servidor.';
+    $('senhaErr').style.display='block';
+  }
 }
 
-function calcularTotal() {
-    const desconto = parseFloat(document.getElementById("desconto").value) / 100 || 0;
-    const linhas = document.querySelectorAll("#itensTabela tr");
-    let totalGeral = 0;
-
-    linhas.forEach(linha => {
-        const valorBase = parseFloat(linha.cells[1].textContent.replace(',', '.'));
-        const quantidade = parseFloat(linha.cells[3].querySelector("input").value) || 0;
-        const valorCorrigido = desconto > 0 ? valorBase / (1 - desconto) : valorBase;
-        const totalItem = valorCorrigido * quantidade;
-
-        linha.cells[2].textContent = valorCorrigido.toFixed(2).replace('.', ',');
-        linha.cells[4].textContent = totalItem.toFixed(2).replace('.', ',');
-        totalGeral += totalItem;
-    });
-
-    document.querySelectorAll("#extrasTabela tr").forEach(linha => {
-        const valor = parseFloat(linha.cells[1].textContent.replace(',', '.'));
-        const qtd = parseFloat(linha.cells[2].querySelector("input").value) || 0;
-        const total = valor * qtd;
-        linha.cells[3].textContent = total.toFixed(2).replace('.', ',');
-        totalGeral += total;
-    });
-
-    const pedagio = parseFloat(document.getElementById("pedagio").value) || 0;
-    totalGeral += pedagio;
-
-    document.getElementById("totalGeral").textContent = totalGeral.toFixed(2).replace('.', ',');
-
-    calcularValorFinal();
+function abrirModalVMC(){
+  $('inSenhaVMC').value='';$('senhaVMCErr').style.display='none';
+  $('modalVMC').classList.add('open');
+  setTimeout(()=>$('inSenhaVMC').focus(),120);
 }
-
-function calcularValorFinal() {
-    const totalGeral = parseFloat(document.getElementById("totalGeral").textContent.replace(',', '.')) || 0;
-    const valorDiferenciado = parseFloat(document.getElementById("valorDiferenciado").value) || 0;
-
-    const valorFinal = totalGeral - valorDiferenciado;
-
-    document.getElementById("valorFinalCorrigido").value =
-        valorFinal.toFixed(2).replace('.', ',');
-
-    gerarMascara();
-}
-
-function gerarMascara() {
-    const servicoSelecionado = document.getElementById("servico").options[document.getElementById("servico").selectedIndex].text;
-    const dataAtual = new Date().toLocaleDateString("pt-BR");
-
-    let texto = `||||||||||Serviço - ${servicoSelecionado.toUpperCase()}||||||||||\n`;
-    texto += `||||||||||Valores||||||||||\n`;
-
-    document.querySelectorAll("#itensTabela tr").forEach(linha => {
-        const item = linha.cells[0].textContent;
-        const valor = linha.cells[2].textContent;
-        const qtd = linha.cells[3].querySelector("input").value;
-        const total = linha.cells[4].textContent;
-
-        if (parseFloat(total.replace(',', '.')) > 0) {
-            texto += `||||||||||${item} | Quantidade - ${qtd} | Valor por unidade - R$ ${valor} | Valor Total - R$ ${total}||||||||||\n`;
-        }
+async function confSenhaVMC(){
+  const senha=$('inSenhaVMC').value;
+  try {
+    const res=await fetch('/api/verificar-adm',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({senha})
     });
-
-    document.querySelectorAll("#extrasTabela tr").forEach(linha => {
-        const item = linha.cells[0].textContent;
-        const valor = linha.cells[1].textContent;
-        const qtd = linha.cells[2].querySelector("input").value;
-        const total = linha.cells[3].textContent;
-
-        if (parseFloat(total.replace(',', '.')) > 0) {
-            texto += `||||||||||${item} | Quantidade - ${qtd} | Valor por unidade - R$ ${valor} | Valor Total - R$ ${total}||||||||||\n`;
-        }
-    });
-
-    const pedagio = parseFloat(document.getElementById("pedagio").value);
-    if (pedagio > 0) {
-        texto += `||||||||||Pedágio | Quantidade - 1 | Valor Total - R$ ${pedagio.toFixed(2).replace('.', ',')}||||||||||\n`;
+    const data=await res.json();
+    if(data.ok){
+      fechaModal('modalVMC');
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+      document.querySelector('[data-tab="adm"]').classList.add('active');
+      $('panel-adm').classList.add('active');
+      carregarAdm();
+      $('adm_imp').focus();
+    } else {
+      $('senhaVMCErr').style.display='block';
     }
+  } catch(e){
+    $('senhaVMCErr').textContent='Erro de conexão com o servidor.';
+    $('senhaVMCErr').style.display='block';
+  }
+}
 
-    const totalGeral = document.getElementById("totalGeral").textContent;
-    texto += `||||||||||VALOR TOTAL DO SERVIÇO = R$ ${totalGeral}||||||||||\n`;
+/* ─── ADMIN ─── */
+function carregarAdm(){
+  const tb=$('admTbody');tb.innerHTML='';
+  for(const[k,d] of Object.entries(ST.tabela)){
+    const tr=document.createElement('tr');
+    let c=`<td class="svc-name">${ST.nomes[k]}</td>`;
+    KEYS.forEach(key=>{
+      c+=`<td><input type="number" step="0.01" value="${d[key].toFixed(2)}"
+        data-svc="${k}" data-key="${key}"></td>`;
+    });
+    tr.innerHTML=c;tb.appendChild(tr);
+  }
+  $('adm_imp').value=ST.vmc.imp.toFixed(2);
+  $('adm_mar').value=ST.vmc.mar.toFixed(2);
+  $('adm_patins').value=ST.extras.patins.toFixed(2);
+  $('adm_diaria').value=ST.extras.diaria.toFixed(2);
+}
 
-    const valorDiferenciado = parseFloat(document.getElementById("valorDiferenciado").value);
-    if (valorDiferenciado > 0) {
-        const diferenca = parseFloat(totalGeral.replace(',', '.')) - valorDiferenciado;
-        texto += `||||||||||VALOR A RECEBER DA PRIME DE R$ ${diferenca.toFixed(2).replace('.', ',')}||||||||||\n`;
+function salvarTabela(){
+  document.querySelectorAll('#admTbody input').forEach(inp=>{
+    ST.tabela[inp.dataset.svc][inp.dataset.key]=pN(inp.value);
+  });
+  atualizaTabela();
+  toast('Tabela salva!');
+}
+
+function salvarVMC(){
+  ST.vmc.imp=pN($('adm_imp').value);
+  ST.vmc.mar=pN($('adm_mar').value);
+  calcTotal();calcDif();
+  toast('Parâmetros VMC salvos!');
+}
+
+function salvarExtras(){
+  ST.extras.patins=pN($('adm_patins').value);
+  ST.extras.diaria=pN($('adm_diaria').value);
+  $('val_patins').textContent=fmt(ST.extras.patins);
+  $('val_diaria').textContent=fmt(ST.extras.diaria);
+  calcTotal();
+  toast('Itens adicionais salvos!');
+}
+
+/* ─── TABELA OS ─── */
+function atualizaTabela(){
+  const svc=$('servico').value;
+  const body=$('itensBody');body.innerHTML='';
+  const show=!!svc;
+  $('secTabela').style.display=show?'':'none';
+  $('secExtras').style.display=show?'':'none';
+  $('secPedagio').style.display=show?'':'none';
+  $('vmcWrap').style.display=show?'':'none';
+  if(!svc)return;
+  const d=ST.tabela[svc];
+  KEYS.forEach(k=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${KLBL[k]}</td>
+      <td class="mono">${fmt(d[k])}</td>
+      <td class="mono corr">0,00</td>
+      <td><input type="number" min="0" step="${k==='ht'||k==='hp'?'0.5':'1'}"
+        value="0" oninput="calcTotal()" data-key="${k}"></td>
+      <td class="mono tot">0,00</td>`;
+    body.appendChild(tr);
+  });
+  calcTotal();
+}
+
+function calcTotal(){
+  const svc=$('servico').value;if(!svc)return;
+  const dmo=pN($('desconto').value)/100;
+
+  let totalCorr=0;
+  document.querySelectorAll('#itensBody tr').forEach(tr=>{
+    const base=pN(tr.cells[1].textContent);
+    const qtd =pN(tr.cells[3].querySelector('input').value);
+    // corrigido: se dmo>0, sobe o valor para que ao aplicar desconto retorne ao base
+    const corr=dmo>0?base/(1-dmo):base;
+    const tot =corr*qtd;
+    tr.querySelector('.corr').textContent=fmt(corr);
+    tr.querySelector('.tot').textContent=fmt(tot);
+    totalCorr+=tot;
+  });
+
+  // Extras (não sofrem DMO)
+  document.querySelectorAll('#extrasBody tr').forEach(tr=>{
+    const val=pN(tr.cells[1].textContent);
+    const qtd=pN(tr.cells[2].querySelector('input').value);
+    const tot=val*qtd;
+    tr.querySelector('.totalExtra').textContent=fmt(tot);
+    totalCorr+=tot;
+  });
+
+  // Pedágio (não sofre DMO)
+  const ped=pN($('pedagio').value);
+  totalCorr+=ped;
+
+  ST.totalCorrigido=totalCorr;
+
+  // Valor REAL: retira o DMO do total corrigido → valor contratual
+  // totalCorrigido = tabela/(1-dmo), logo tabela = totalCorrigido*(1-dmo)
+  const totalReal=totalCorr*(1-dmo);
+  ST.totalReal=totalReal;
+
+  $('totalCorrigido').textContent=fmt(totalCorr);
+  calcVMC(totalCorr,totalReal,dmo);
+}
+
+/* ─── VMC OS ─── */
+function calcVMC(totalCorr,totalReal,dmo){
+  const imp=ST.vmc.imp/100, mar=ST.vmc.mar/100;
+  const aposImp = totalReal - (totalReal*imp);   // 1º: tira imposto
+  const vmc     = aposImp  - (aposImp *mar);     // 2º: tira margem do restante
+
+  $('v_corrigido').textContent='R$ '+fmt(totalCorr);
+  $('v_real').textContent='R$ '+fmt(totalReal);
+  $('v_deducoes').textContent='R$ '+fmt(aposImp);
+  $('v_vmc').textContent='R$ '+fmt(vmc);
+  $('lbl_imp').textContent=fmt(ST.vmc.imp);
+  $('lbl_mar').textContent=fmt(ST.vmc.mar);
+}
+
+/* ─── DIFERENCIADO ─── */
+function calcDif(){
+  const svc=$('servico').value;
+  const saida_c=pN($('d_saida').value);
+  const raio   =pN($('d_raio').value);
+  const kmTot  =pN($('d_km').value);
+  const kmv_c  =pN($('d_kmv').value);
+  const desc   =pN($('d_desc').value)/100;
+  const htv_c  =pN($('d_htv').value);
+  const htq    =pN($('d_htq').value);
+  const hpv_c  =pN($('d_hpv').value);
+  const hpq    =pN($('d_hpq').value);
+
+  if(!saida_c&&!kmTot){$('secDifRes').style.display='none';return;}
+
+  // Serviço obrigatório para calcular a tabela contratual
+  if(!svc){
+    toast('Selecione o tipo de serviço na aba "Ordem de Serviço" para calcular a tabela contratual.',false);
+    $('secDifRes').style.display='none';
+    return;
+  }
+
+  const kmExc=Math.max(0,kmTot-raio);
+
+  // Tabela cliente (bruto)
+  const c_saida=saida_c;
+  const c_km   =kmExc*kmv_c;
+  const c_ht   =htv_c*htq;
+  const c_hp   =hpv_c*hpq;
+  const c_bruto=c_saida+c_km+c_ht+c_hp;
+  const c_final=c_bruto*(1-desc);   // valor final da OS do cliente
+
+  // Tabela contratual (mesma rota, valores PP)
+  const t=ST.tabela[svc];
+  const pp_saida=t.saida;
+  const pp_km   =kmExc*t.asfalto;
+  const pp_ht   =t.ht*htq;
+  const pp_hp   =t.hp*hpq;
+  const pp_total=pp_saida+pp_km+pp_ht+pp_hp;
+
+  const rec_orgao=c_final;
+  const rec_ger  =pp_total-c_final;
+  const rec_total=rec_orgao+rec_ger;  // = pp_total
+
+  ST.difFinalOS=c_final;
+  ST.difTotalPP=pp_total;
+
+  // Preencher tabela comparativa
+  const tb=$('difTbody');
+  const rows=[
+    ['Saída',fmt(c_saida),fmt(pp_saida)],
+    ['KM Excedente ('+kmExc+' km)',fmt(c_km),fmt(pp_km)],
+    ['Hora Trabalhada (×'+htq+')',fmt(c_ht),fmt(pp_ht)],
+    ['Hora Parada (×'+hpq+')',fmt(c_hp),fmt(pp_hp)],
+  ];
+  tb.innerHTML=rows.map(([i,vc,vp])=>
+    `<tr><td>${i}</td><td class="mono">${vc}</td><td class="mono">${vp}</td></tr>`
+  ).join('');
+
+  $('dif_tc').textContent=fmt(c_bruto);
+  $('dif_tp').textContent=fmt(pp_total);
+
+  $('d_bruto').value ='R$ '+fmt(c_bruto);
+  $('d_final').value ='R$ '+fmt(c_final);
+  $('d_pp').value    ='R$ '+fmt(pp_total);
+  $('d_orgao').value ='R$ '+fmt(rec_orgao);
+  $('d_ger').value   ='R$ '+fmt(rec_ger);
+
+  // VMC diferenciado: sobre o total real recebido (= pp_total)
+  const imp=ST.vmc.imp/100,mar=ST.vmc.mar/100;
+  const vImp=rec_total*imp, vMar=rec_total*mar;
+  const vmc=rec_total-vImp-vMar;
+
+  $('vd_total').textContent='R$ '+fmt(rec_total);
+  $('vd_imp').textContent  ='R$ '+fmt(vImp);
+  $('vd_mar').textContent  ='R$ '+fmt(vMar);
+  $('vd_vmc').textContent  ='R$ '+fmt(vmc);
+  $('lbl_imp2').textContent=fmt(ST.vmc.imp);
+  $('lbl_mar2').textContent=fmt(ST.vmc.mar);
+
+  $('secDifRes').style.display='';
+}
+
+/* ─── MÁSCARA ─── */
+function gerarMascara(){
+  const svc   =$('servico').value;
+  const nSvc  =svc?ST.nomes[svc].toUpperCase():'—';
+  const osNum =$('os_num').value||'—';
+  const osData=$('os_data').value||(new Date().toLocaleDateString('pt-BR'));
+  const osGer =$('os_ger').value||'—';
+  const osLink=$('os_link').value||'';
+
+  // Monta itens com valor TABELA (não corrigido) para a máscara
+  const dmo=pN($('desconto').value)/100;
+  const linhasItens=[];
+  let totalMask=0;
+
+  if(svc){
+    document.querySelectorAll('#itensBody tr').forEach(tr=>{
+      const base=pN(tr.cells[1].textContent);  // valor de tabela real
+      const corr=pN(tr.cells[2].textContent);  // valor corrigido
+      const qtd =pN(tr.cells[3].querySelector('input').value);
+      if(qtd===0)return;
+      // Na mascara: mostrar valor corrigido (o que vai no sistema) e total corrigido
+      const tot=corr*qtd;
+      const key=tr.cells[3].querySelector('input').dataset.key;
+      linhasItens.push({label:NOMES_MASK[key]||key.toUpperCase(),corr,qtd,tot});
+      totalMask+=tot;
+    });
+
+    document.querySelectorAll('#extrasBody tr').forEach(tr=>{
+      const val=pN(tr.cells[1].textContent);
+      const qtd=pN(tr.cells[2].querySelector('input').value);
+      if(qtd===0)return;
+      const tot=val*qtd;
+      linhasItens.push({label:tr.cells[0].textContent.toUpperCase(),corr:val,qtd,tot});
+      totalMask+=tot;
+    });
+
+    const ped=pN($('pedagio').value);
+    if(ped>0){
+      linhasItens.push({label:'PEDÁGIO',corr:ped,qtd:1,tot:ped});
+      totalMask+=ped;
     }
+  }
 
-    texto += `Resumo do serviço : Contratado prestador na data ${dataAtual} conforme valores acima.`;
+  let txt='';
+  txt+=`||||||||||Serviço - ${nSvc}||||||||||\n`;
+  txt+=`||||||||||Valores||||||||||\n`;
+  linhasItens.forEach(l=>{
+    txt+=`||||||||||${l.label} | Quantidade - ${l.qtd} | Valor por unidade - R$ ${fmt(l.corr)} | Valor Total - R$ ${fmt(l.tot)}||||||||||\n`;
+  });
+  txt+=`||||||||||VALOR TOTAL DO SERVIÇO = R$ ${fmt(totalMask)}||||||||||\n`;
 
-    document.getElementById("mascara").value = texto;
+  // Se tiver valor diferenciado calculado
+  if(ST.difFinalOS>0&&ST.difTotalPP>0){
+    const recGer=ST.difTotalPP-ST.difFinalOS;
+    txt+=`||||||||||VALOR A RECEBER DA ${osGer} DE R$ ${fmt(recGer)}||||||||||\n`;
+  }
+
+  txt+=`Resumo do serviço : Contratado prestador na data ${osData} conforme valores acima.`;
+  if(osLink) txt+=` Link da rota: ${osLink}`;
+
+  $('mascaraBox').textContent=txt;
 }
 
-function copiarMascara() {
-    const campo = document.getElementById("mascara");
-    campo.select();
-    document.execCommand("copy");
+function copiarMascara(){
+  const txt=$('mascaraBox').textContent;
+  if(txt.startsWith('—')){toast('Preencha a OS primeiro.',false);return;}
+  navigator.clipboard.writeText(txt).then(()=>toast('Máscara copiada!'));
 }
 
-function gerarPDF(){
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.setFontSize(11);
-    doc.text(document.getElementById("mascara").value, 10, 10);
-    doc.save("calculadora_porto_principe.pdf");
+/* ─── PDF ─── */
+function exportarPDF(){
+  gerarMascara();
+  const txt=$('mascaraBox').textContent;
+  if(txt.startsWith('—')){toast('Preencha a OS antes de exportar.',false);return;}
+
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const W=doc.internal.pageSize.getWidth();
+  const H=doc.internal.pageSize.getHeight();
+  const M=14, maxW=W-M*2;
+
+  // Cabeçalho
+  doc.setFillColor(24,24,27);
+  doc.rect(0,0,W,14,'F');
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(10);
+  doc.setTextColor(255,255,255);
+  doc.text('Calculadora de OS'  ,M,9.5);
+  doc.text(`N° ${$('os_num').value||'—'}`,W-M,9.5,'right');
+
+  doc.setFont('courier','normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(20,20,20);
+
+  const lines=doc.splitTextToSize(txt,maxW);
+  let y=22, lh=4.5;
+  lines.forEach(ln=>{
+    if(y+lh>H-M){doc.addPage();y=M;}
+    doc.text(ln,M,y);y+=lh;
+  });
+
+  const nome=$('os_num').value||'OS';
+  doc.save(`OS_${nome.replace(/[^a-zA-Z0-9]/g,'_')}.pdf`);
+  toast('PDF exportado!');
 }
 
-function resetarFormulario() {
-    location.reload();
+/* ─── RESET ─── */
+function resetarTudo(){
+  if(!confirm('Resetar todos os campos?'))return;
+  location.reload();
 }
+
+/* ─── FECHAR MODAL COM ESC ─── */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    ['modalAdm','modalVMC'].forEach(id=>fechaModal(id));
+  }
+});
 </script>
-
 </body>
 </html>
