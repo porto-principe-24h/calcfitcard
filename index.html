@@ -426,7 +426,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0;}
         </div>
       </div>
       <div class="infobox neutral" style="margin-top:12px;margin-bottom:0">
-        💡 O valor corrigido já considera o DMO — ao inserir no sistema e ele aplicar o desconto, o valor retorna à tabela contratual.
+        💡 O valor corrigido já considera o DMO — ao inserir no sistema e ele aplicar o desconto, o valor retorna ao valor de tabela.
       </div>
     </div>
   </div>
@@ -516,20 +516,9 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0;}
           <div class="vmc-val mono" id="v_corrigido">R$ 0,00</div>
         </div>
         <div class="vmc-cell">
-          <div class="vmc-label">Valor Real (após DMO)</div>
-          <div class="vmc-val mono" id="v_real">R$ 0,00</div>
-        </div>
-        <div class="vmc-cell">
-          <div class="vmc-label">— Impostos (<span id="lbl_imp">26,65</span>%) — Margem (<span id="lbl_mar">35,00</span>%)</div>
-          <div class="vmc-val mono" id="v_deducoes">R$ 0,00</div>
-        </div>
-        <div class="vmc-cell">
           <div class="vmc-label">VMC — Liberar até</div>
           <div class="vmc-val mono highlight" id="v_vmc">R$ 0,00</div>
         </div>
-      </div>
-      <div class="vmc-note">
-        Fórmula: Total corrigido ÷ (1 − DMO%) = Valor real → − impostos − margem = VMC
       </div>
     </div>
   </div>
@@ -540,7 +529,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0;}
 <div class="panel" id="panel-dif">
 
   <div class="infobox amber">
-    ⚠️ Use esta aba quando o cliente tiver tabela própria diferente da tabela contratual. O serviço e o DMO definidos na aba OS são aplicados automaticamente aqui.
+    ⚠️ Use esta aba quando o cliente tiver tabela própria diferente da tabela padrão. O serviço e o DMO definidos na aba OS são aplicados automaticamente aqui.
   </div>
 
   <div class="section">
@@ -593,7 +582,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0;}
   <!-- Resultado diferenciado -->
   <div id="secDifRes" style="display:none">
     <div class="section">
-      <div class="section-head"><span><span class="section-head-icon">📈</span>Resultado — Comparativo de Tabelas</span></div>
+      <div class="section-head"><span><span class="section-head-icon">📈</span>Resultado</span></div>
       <div class="section-body" style="padding:0">
         <div style="overflow-x:auto">
           <table class="dt" style="margin-bottom:0">
@@ -601,7 +590,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0;}
               <tr>
                 <th>Item</th>
                 <th>Tabela do Cliente (R$)</th>
-                <th>Tabela Contratual (R$)</th>
+                <th>Tabela Padrão (R$)</th>
               </tr>
             </thead>
             <tbody id="difTbody"></tbody>
@@ -618,7 +607,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0;}
     </div>
 
     <div class="section">
-      <div class="section-head"><span><span class="section-head-icon">💵</span>Valores a Receber</span></div>
+      <div class="section-head"><span><span class="section-head-icon">💵</span>Total</span></div>
       <div class="section-body">
         <div class="g3" style="margin-bottom:14px">
           <div class="field">
@@ -630,17 +619,17 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0;}
             <input type="text" readonly class="r-sub" id="d_final">
           </div>
           <div class="field">
-            <label>Valor tabela contratual (mesma rota)</label>
+            <label>Valor tabela padrão (mesma rota)</label>
             <input type="text" readonly class="r-sub" id="d_pp">
           </div>
         </div>
         <div class="g2">
           <div class="field">
-            <label>✅ A receber do Órgão / Cliente</label>
+            <label>✅ Valor Total da OS</label>
             <input type="text" readonly class="r-green" id="d_orgao">
           </div>
           <div class="field">
-            <label>✅ A receber da Gerenciadora</label>
+            <label>✅ Valor da Gerenciadora</label>
             <input type="text" readonly class="r-green" id="d_ger">
           </div>
         </div>
@@ -658,19 +647,10 @@ hr.div{border:none;border-top:1px solid var(--border);margin:14px 0;}
           <div class="vmc-val mono" id="vd_total">R$ 0,00</div>
         </div>
         <div class="vmc-cell">
-          <div class="vmc-label">— Impostos (<span id="lbl_imp2">26,65</span>%)</div>
-          <div class="vmc-val mono" id="vd_imp">R$ 0,00</div>
-        </div>
-        <div class="vmc-cell">
-          <div class="vmc-label">— Margem (<span id="lbl_mar2">35,00</span>%)</div>
-          <div class="vmc-val mono" id="vd_mar">R$ 0,00</div>
-        </div>
-        <div class="vmc-cell">
           <div class="vmc-label">VMC — Liberar até</div>
           <div class="vmc-val mono highlight" id="vd_vmc">R$ 0,00</div>
         </div>
       </div>
-      <div class="vmc-note">VMC calculado sobre o total real recebido (órgão + gerenciadora).</div>
     </div>
   </div>
 
@@ -1022,11 +1002,7 @@ function calcVMC(totalCorr,totalReal,dmo){
   const vmc     = aposImp  - (aposImp *mar);     // 2º: tira margem do restante
 
   $('v_corrigido').textContent='R$ '+fmt(totalCorr);
-  $('v_real').textContent='R$ '+fmt(totalReal);
-  $('v_deducoes').textContent='R$ '+fmt(aposImp);
   $('v_vmc').textContent='R$ '+fmt(vmc);
-  $('lbl_imp').textContent=fmt(ST.vmc.imp);
-  $('lbl_mar').textContent=fmt(ST.vmc.mar);
 }
 
 /* ─── DIFERENCIADO ─── */
@@ -1046,7 +1022,7 @@ function calcDif(){
 
   // Serviço obrigatório para calcular a tabela contratual
   if(!svc){
-    toast('Selecione o tipo de serviço na aba "Ordem de Serviço" para calcular a tabela contratual.',false);
+    toast('Selecione o tipo de serviço na aba "Ordem de Serviço" primeiro.',false);
     $('secDifRes').style.display='none';
     return;
   }
@@ -1103,11 +1079,7 @@ function calcDif(){
   const vmc=rec_total-vImp-vMar;
 
   $('vd_total').textContent='R$ '+fmt(rec_total);
-  $('vd_imp').textContent  ='R$ '+fmt(vImp);
-  $('vd_mar').textContent  ='R$ '+fmt(vMar);
   $('vd_vmc').textContent  ='R$ '+fmt(vmc);
-  $('lbl_imp2').textContent=fmt(ST.vmc.imp);
-  $('lbl_mar2').textContent=fmt(ST.vmc.mar);
 
   $('secDifRes').style.display='';
 }
